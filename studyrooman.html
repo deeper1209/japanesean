@@ -292,9 +292,8 @@
             try {
                 if (navigator.share) {
                     await navigator.share({
-                        title: '스터디룸 지도',
-                        text: '스터디룸 위치 확인하기',
-                        url: mapUrl
+                        title: '스터디룸 예약',
+                        text: '스터디룸 예약 했습니다.\n위치 확인하기: https://deeper1209.github.io/studyroom/map.html>'
                     });
                     showModal('지도 링크가 성공적으로 공유되었습니다.');
                 } else {
