@@ -106,6 +106,8 @@
             display: none;
         }
     </style>
+    <!-- 카카오맵 SDK 로드를 위한 스크립트 태그 -->
+    <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=6b0e3d86b06c623bc15383b891a22ab7&libraries=services"></script>
 </head>
 <body>
 
@@ -122,36 +124,62 @@
          * 이동수단 버튼을 담는 컨테이너
     -->
     <div class="button-container">
-        <button class="transport-button" onclick="openMaps('driving')">자동차</button>
-        <button class="transport-button" onclick="openMaps('transit')">대중교통</button>
-        <button class="transport-button" onclick="openMaps('walking')">도보</button>
+        <button class="transport-button" onclick="openKakaoMap('driving')">자동차</button>
+        <button class="transport-button" onclick="openKakaoMap('transit')">대중교통</button>
+        <button class="transport-button" onclick="openKakaoMap('walking')">도보</button>
     </div>
 
     <div id="status-message"></div>
 
     <script>
-        function openMaps(transportMode) {
+        // 목적지 주소 고정
+        const DESTINATION_ADDRESS = "서울 영등포구 여의대방로65길 10, 유니온타워";
+        let destinationCoords = null;
+        let mapService = null;
+
+        // Geolocation API를 사용하여 현재 위치를 가져와 길찾기 URL을 생성하는 함수
+        function openKakaoMap(transportMode) {
             const statusMessage = document.getElementById('status-message');
             statusMessage.style.display = 'block';
             statusMessage.textContent = '현재 위치를 찾는 중입니다...';
 
-            // Geolocation API를 사용하여 현재 위치를 가져옵니다.
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
-                        // 위치를 성공적으로 가져온 경우
-                        statusMessage.style.display = 'none';
+                        statusMessage.textContent = '목적지 좌표를 찾는 중입니다...';
                         const startLat = position.coords.latitude;
                         const startLon = position.coords.longitude;
-                        const destination = encodeURIComponent("서울 영등포구 여의대방로65길 10, 유니온타워");
                         
-                        // 새로운 URL 형식: origin과 destination을 쿼리 파라미터로 명확하게 전달합니다.
-                        const url = `https://www.google.com/maps/dir/?api=1&origin=${startLat},${startLon}&destination=${destination}&travelmode=${transportMode}`;
+                        // 카카오맵 서비스 라이브러리 로드 확인
+                        if (!kakao.maps.services) {
+                            statusMessage.textContent = '카카오맵 서비스 로드 실패. 잠시 후 다시 시도해주세요.';
+                            return;
+                        }
+
+                        // 주소-좌표 변환 객체 생성
+                        if (!mapService) {
+                            mapService = new kakao.maps.services.Geocoder();
+                        }
                         
-                        window.open(url, '_blank');
+                        // 주소를 좌표로 변환
+                        mapService.addressSearch(DESTINATION_ADDRESS, function(result, status) {
+                            if (status === kakao.maps.services.Status.OK && result.length > 0) {
+                                statusMessage.style.display = 'none';
+                                destinationCoords = {
+                                    lat: result[0].y,
+                                    lon: result[0].x
+                                };
+                                
+                                // 길찾기 URL 생성 및 열기
+                                const url = `https://map.kakao.com/link/to/${encodeURIComponent(DESTINATION_ADDRESS)},${destinationCoords.lat},${destinationCoords.lon}?sX=${startLon}&sY=${startLat}&eX=${destinationCoords.lon}&eY=${destinationCoords.lat}&by=${getKakaoMapMode(transportMode)}`;
+                                
+                                window.open(url, '_blank');
+                            } else {
+                                statusMessage.textContent = '목적지를 찾을 수 없습니다.';
+                            }
+                        });
                     },
                     (error) => {
-                        // 위치 가져오기 실패 또는 권한이 거부된 경우
                         console.error('위치 정보를 가져오는데 실패했습니다.', error);
                         statusMessage.textContent = '위치 정보 가져오기 실패: 권한을 허용해주세요.';
                     },
@@ -162,11 +190,24 @@
                     }
                 );
             } else {
-                // 브라우저가 Geolocation을 지원하지 않는 경우
                 statusMessage.textContent = '죄송합니다. 이 브라우저는 위치 정보를 지원하지 않습니다.';
             }
         }
-    </script>
 
+        // 카카오맵 길찾기 모드 변환 함수
+        function getKakaoMapMode(mode) {
+            switch(mode) {
+                case 'driving':
+                    return 'CAR';
+                case 'walking':
+                    return 'WALK';
+                case 'transit':
+                    return 'PUBLICTRANSIT';
+                default:
+                    return 'CAR';
+            }
+        }
+    </script>
 </body>
 </html>
+\
