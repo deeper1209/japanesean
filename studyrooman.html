@@ -88,30 +88,31 @@
         }
         .modal-content {
             background: #1e293b;
-            padding: 24px;
+            padding: 12px; /* 모바일 크기 더 줄임 */
             border-radius: 12px;
             text-align: center;
-            max-width: 500px; /* 모든 모달의 최대 너비를 늘림 */
-            width: 90%; /* 화면 너비에 따라 유동적으로 조절 */
+            max-width: 320px; /* 모바일 크기 더 줄임 */
+            width: 90%;
             color: var(--card);
         }
         .modal-content h3 {
-            font-size: 18px;
+            font-size: 15px; /* 모바일 크기 더 줄임 */
             margin-top: 0;
-            margin-bottom: 12px;
+            margin-bottom: 8px; /* 모바일 크기 더 줄임 */
         }
         .modal-content p {
-            font-size: 14px;
-            margin-bottom: 20px;
+            font-size: 11px; /* 모바일 크기 더 줄임 */
+            margin-bottom: 12px; /* 모바일 크기 더 줄임 */
             line-height: 1.4;
         }
         .modal-buttons {
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 8px; /* 모바일 크기 더 줄임 */
         }
         .modal-buttons button {
             flex: 1;
+            padding: 7px 10px; /* 모바일 크기 더 줄임 */
         }
         .modal-buttons button.primary {
             background: var(--accent);
@@ -135,30 +136,30 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            margin-bottom: 10px;
+            gap: 4px; /* 모바일 크기 더 줄임 */
+            margin-bottom: 6px; /* 모바일 크기 더 줄임 */
         }
         .spinner-value {
-            font-size: 24px;
+            font-size: 18px; /* 모바일 크기 더 줄임 */
             font-weight: bold;
-            min-width: 50px;
+            min-width: 36px; /* 모바일 크기 더 줄임 */
             text-align: center;
-            padding: 8px 16px;
+            padding: 5px 10px; /* 모바일 크기 더 줄임 */
             background: rgba(255, 255, 255, 0.05);
             border-radius: 8px;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         .spinner-buttons {
             display: flex;
-            gap: 10px;
+            gap: 6px; /* 모바일 크기 더 줄임 */
         }
         .spinner-buttons button {
             background-color: var(--accent);
             color: white;
             border: none;
-            font-size: 20px;
-            width: 40px;
-            height: 40px;
+            font-size: 16px; /* 모바일 크기 더 줄임 */
+            width: 32px; /* 모바일 크기 더 줄임 */
+            height: 32px; /* 모바일 크기 더 줄임 */
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -229,7 +230,7 @@
                     <div class="field">
                         <div class="label">이용시간</div>
                         <!-- 이용시간 필드: 터치 시 모달 열림 -->
-                        <div class="value editable" id="time" data-field="time">오전 9시 30분 ~ 오후 12시 30분 (3시간)</div>
+                        <div class="value editable" id="time" data-field="time">오전 9시30분~12시30분 (3시간)</div>
                     </div>
                 </div>
             </div>
@@ -270,12 +271,7 @@
             note: '2호점 - 4층 406호',
             date: '9월 7일',
             people: '6명',
-            time: {
-                ampm: '오전',
-                startHour: 9,
-                startMinute: 30,
-                duration: 3
-            }
+            time: '오전 9시30분~12시30분 (3시간)'
         };
 
         const localStorageKey = 'studyroom_reservation_data';
@@ -352,13 +348,13 @@
             const endMinute = end.getMinutes();
             const displayEndHour = endHour % 12 === 0 ? 12 : endHour % 12;
 
-            return `${displayEndHour}시 ${endMinute.toString().padStart(2, '0')}분`;
+            return `${displayEndHour}시${endMinute.toString().padStart(2, '0')}분`;
         }
 
         function calculateTime(ampm, startHour, startMinute, duration) {
-             const startString = `${ampm} ${startHour}시 ${startMinute.toString().padStart(2, '0')}분`;
+             const startString = `${ampm} ${startHour}시${startMinute.toString().padStart(2, '0')}분`;
              const endString = calculateEndTime(ampm, startHour, startMinute, duration);
-             return `${startString} ~ ${endString} (${duration}시간)`;
+             return `${startString}~${endString} (${duration}시간)`;
         }
 
         // 페이지 로드 시 localStorage에서 데이터 불러오기
@@ -670,7 +666,7 @@ ${el('time').textContent}`,
                         modalTitle = '이용시간 선택';
                         modalMessage = '시작 시간과 이용 시간을 설정하세요.';
 
-                        const timeRegex = /(오전|오후)\s*(\d+)시\s*(\d+)분\s*~\s*.*\((\d+)시간\)/;
+                        const timeRegex = /(오전|오후)\s*(\d+)시(\d+)분~(\d+)시(\d+)분\s*\((\d+)시간\)/;
                         const timeParts = node.textContent.match(timeRegex);
                         let currentAmpm = '오전';
                         let currentStartHour = 9;
@@ -681,7 +677,7 @@ ${el('time').textContent}`,
                             currentAmpm = timeParts[1];
                             currentStartHour = parseInt(timeParts[2]);
                             currentStartMinute = parseInt(timeParts[3]);
-                            currentDuration = parseInt(timeParts[4]);
+                            currentDuration = parseInt(timeParts[6]);
                         }
                         
                         modalBody = `
