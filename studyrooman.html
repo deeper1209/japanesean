@@ -132,10 +132,10 @@
     <div id="status-message"></div>
 
     <script>
-        // 목적지 주소 고정
-        const DESTINATION_ADDRESS = "서울 영등포구 여의대방로65길 10";
-        let destinationCoords = null;
-        let mapService = null;
+        // 목적지 주소와 좌표를 고정합니다.
+        const DESTINATION_NAME = "유니온타워";
+        const DESTINATION_LAT = 37.519961;
+        const DESTINATION_LON = 126.938833;
 
         // Geolocation API를 사용하여 현재 위치를 가져와 길찾기 URL을 생성하는 함수
         function openKakaoMap(transportMode) {
@@ -146,42 +146,16 @@
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
-                        // 위치 정보가 성공적으로 감지되면 목적지 좌표 변환 시작
-                        statusMessage.textContent = '목적지 좌표를 찾는 중입니다...';
+                        // 위치 정보가 성공적으로 감지되면 길찾기 URL 생성
+                        statusMessage.textContent = '카카오맵을 여는 중입니다...';
                         const startLat = position.coords.latitude;
                         const startLon = position.coords.longitude;
                         
-                        // 카카오맵 서비스 라이브러리 로드 확인
-                        if (!kakao.maps.services) {
-                            statusMessage.textContent = '카카오맵 서비스 로드 실패. 잠시 후 다시 시도해주세요.';
-                            return;
-                        }
-
-                        // 주소-좌표 변환 객체 생성
-                        if (!mapService) {
-                            mapService = new kakao.maps.services.Geocoder();
-                        }
+                        // 길찾기 URL 생성 및 열기
+                        const url = `https://map.kakao.com/link/to/${encodeURIComponent(DESTINATION_NAME)},${DESTINATION_LAT},${DESTINATION_LON}?sX=${startLon}&sY=${startLat}&eX=${DESTINATION_LON}&eY=${DESTINATION_LAT}&by=${getKakaoMapMode(transportMode)}`;
                         
-                        // 주소를 좌표로 변환
-                        mapService.addressSearch(DESTINATION_ADDRESS, function(result, status) {
-                            if (status === kakao.maps.services.Status.OK && result.length > 0) {
-                                // 변환 성공 시 메시지 숨기기 및 길찾기 URL 생성
-                                statusMessage.style.display = 'none';
-                                destinationCoords = {
-                                    lat: result[0].y,
-                                    lon: result[0].x
-                                };
-                                
-                                // 길찾기 URL 생성 및 열기
-                                const url = `https://map.kakao.com/link/to/${encodeURIComponent(DESTINATION_ADDRESS)},${destinationCoords.lat},${destinationCoords.lon}?sX=${startLon}&sY=${startLat}&eX=${destinationCoords.lon}&eY=${destinationCoords.lat}&by=${getKakaoMapMode(transportMode)}`;
-                                
-                                window.open(url, '_blank');
-                            } else {
-                                // 변환 실패 시 사용자에게 알림
-                                console.error('주소-좌표 변환에 실패했습니다. 상태 코드:', status);
-                                statusMessage.textContent = '목적지를 찾을 수 없습니다. 주소를 확인해주세요.';
-                            }
-                        });
+                        window.open(url, '_blank');
+                        statusMessage.style.display = 'none';
                     },
                     (error) => {
                         // 위치 정보 가져오기 실패 또는 권한 거부 시 사용자에게 알림
