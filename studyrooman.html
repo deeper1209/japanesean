@@ -1,331 +1,138 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>스터디룸 예약</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스터디룸 위치</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root{
-            --bg:#0f1724;
-            --card:#f8fafc;
-            --accent:#2563eb;
-            --muted:#6b7280;
-            --glass: rgba(255,255,255,0.06);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
-        }
-        html,body{height:100%;margin:0;background:linear-gradient(180deg,#0b1220 0%, #071426 100%);color:var(--card);}
-        .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;flex-direction:column;}
-        .card{
-            width:100%;
-            max-width:720px;
-            background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
-            border-radius:16px;
-            box-shadow:0 10px 30px rgba(2,6,23,0.6);
-            padding:20px;
-            box-sizing:border-box;
-            backdrop-filter: blur(6px);
-            border:1px solid rgba(255,255,255,0.04);
-        }
-        .header{
-            display:flex;gap:12px;align-items:center;justify-content:center;margin-bottom:14px;
-        }
-        .brand{
-            display:flex;gap:12px;align-items:center;
-            /* Flexbox를 사용하여 내부 요소를 중앙 정렬 */
-            align-items: center;
-            justify-content: center;
-        }
-        .logo{
-            width:50px; /* 크기 50x50으로 변경 */
-            height:50px; /* 크기 50x50으로 변경 */
-            border-radius:10px;background:linear-gradient(135deg,var(--accent),#7c3aed);
-            display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;color:white;box-shadow:0 6px 18px rgba(37,99,235,0.18);
-        }
-        .title{
-            font-size:18px;color:var(--card);line-height:1;
-        }
-        .body{display:flex;gap:18px;flex-wrap:wrap;}
-        .left{flex:1 1 320px;min-width:220px}
-        .right{width:240px;min-width:200px;background:rgba(255,255,255,0.02);padding:12px;border-radius:12px}
-        .field{margin-bottom:12px}
-        .label{font-size:12px;color:var(--muted);margin-bottom:6px}
-        .value{
-            background:transparent;color:var(--card);padding:8px 10px;border-radius:8px;border:1px dashed rgba(255,255,255,0.04);
-            min-height:36px;display:flex;align-items:center;font-size:15px;
-        }
-        .value[contenteditable="true"]:focus{outline:none;border:1px solid rgba(37,99,235,0.9);box-shadow:0 6px 18px rgba(37,99,235,0.08)}
-        .meta{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:6px}
-        .chip{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.03);font-size:13px}
-        .controls{display:flex;gap:10px;align-items:center;justify-content:flex-end;margin-top:18px;flex-wrap:wrap; width:100%; max-width:720px;}
-        button{
-            background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--card);padding:10px 14px;border-radius:10px;font-size:14px;
-            cursor:pointer;
-        }
-        button.primary{background:linear-gradient(90deg,var(--accent),#7c3aed);border:none;box-shadow:0 8px 20px rgba(124,58,237,0.12)}
-        .note{font-size:12px;color:var(--muted);margin-top:8px}
-        @media (max-width:520px){
-            .right{width:100%}
-        }
-        /* 사용자 정의 모달 스타일 */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
+        /*
+         * body와 html 요소를 화면 전체에 맞춥니다.
+         * Flexbox를 사용하여 내부 요소를 수직 및 수평 중앙에 배치합니다.
+         */
+        body, html {
+            margin: 0;
+            padding: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-        .modal-content {
-            background: #1e293b;
-            padding: 24px;
-            border-radius: 12px;
-            text-align: center;
-            max-width: 300px;
-            color: var(--card);
-        }
-        .modal-content h3 {
-            font-size: 18px;
-            margin-top: 0;
-            margin-bottom: 12px;
-        }
-        .modal-content p {
-            font-size: 14px;
-            margin-bottom: 20px;
-            line-height: 1.4;
-        }
-        .modal-buttons {
+            overflow: hidden;
+            background-color: #000;
             display: flex;
+            flex-direction: column;
+            align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 20px;
         }
-        .modal-buttons button {
-            flex: 1;
-        }
-        .modal-buttons button.primary {
-            background: var(--accent);
-        }
-        /* 로고 이미지 스타일 */
-        .logo img {
-            width: 100%;
-            height: 100%;
+
+        /*
+         * 이미지가 화면 크기에 맞춰 비율을 유지하며 표시되도록 설정합니다.
+         */
+        .fit-image {
+            max-width: 90%;
+            max-height: 70vh;
             object-fit: contain;
-            border-radius: 10px;
         }
-        .info-bar {
-            font-size: 12px;
-            color: var(--muted);
-            margin-bottom: 12px;
+
+        /*
+         * 주요 버튼 스타일을 정의합니다.
+         */
+        .primary {
+            padding: 1rem 2rem;
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #fff;
+            background-color: #3b82f6;
+            border: none;
+            border-radius: 9999px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .primary:hover {
+            background-color: #2563eb;
+            transform: scale(1.05);
+        }
+
+        /*
+         * 메시지 박스 스타일
+         */
+        #message-box {
+            color: white;
+            font-size: 1rem;
             text-align: center;
+            height: 20px;
         }
     </style>
 </head>
 <body>
-    <div class="wrap">
-        <div class="info-bar">
-            터치하여 수정하고 편집 후 이미지로 공유하세요.
-        </div>
-        <div class="card" id="card">
-            <div class="header">
-                <div class="brand">
-                    <div class="logo">
-                        <img src="https://i.imgur.com/jv4B6zz.png" alt="스터디룸 로고" onerror="this.onerror=null; this.src='https://placehold.co/50x50/0f172a/FFF?text=로고';" />
-                    </div>
-                    <div>
-                        <div class="title">스터디룸 예약</div>
-                    </div>
-                </div>
-            </div>
-            <div class="body">
-                <div class="left">
-                    <div class="field">
-                        <div class="label">지점명</div>
-                        <div class="value" id="branch" contenteditable="true">이룸 스터디룸 여의도점</div>
-                    </div>
-                    <div class="field">
-                        <div class="label">주소</div>
-                        <div class="value" id="address" contenteditable="true">영등포구 여의대방로65길 10, 유니온타워</div>
-                    </div>
-                    <div class="field">
-                        <div class="label">비고</div>
-                        <div class="value" id="note" contenteditable="true">2호점 - 4층 406호</div>
-                    </div>
-                </div>
-                <div class="right">
-                    <div class="field">
-                        <div class="label">예약일자</div>
-                        <div class="value" id="date" contenteditable="true">9월 7일</div>
-                    </div>
-                    <div class="field">
-                        <div class="label">예약인원</div>
-                        <div class="value" id="people" contenteditable="true">6명</div>
-                    </div>
-                    <div class="field">
-                        <div class="label">이용시간</div>
-                        <div class="value" id="time" contenteditable="true">오전 9:30 ~ 12:30 (3시간)</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- 버튼을 카드 바깥으로 이동 -->
-        <div class="controls" role="group" aria-label="actions">
-            <button id="mainAction" class="primary">이미지 공유</button>
-            <button id="mapShareBtn" class="primary">지도 공유</button>
-            <button id="resetBtn">초기화</button>
-        </div>
-    </div>
 
-    <!-- 사용자 정의 모달 -->
-    <div id="myModal" class="modal-overlay">
-        <div class="modal-content">
-            <h3 id="modal-title"></h3>
-            <p id="modal-message"></p>
-            <div class="modal-buttons">
-                <button id="modal-confirm">확인</button>
-                <button id="modal-cancel" style="display:none;">취소</button>
-            </div>
-        </div>
-    </div>
+    <!--
+     * 스터디룸 위치 이미지를 표시하는 img 태그입니다.
+     * 'fit-image' 클래스를 사용하여 CSS를 적용합니다.
+     -->
+    <img src="https://i.imgur.com/5G51JLt.png" alt="스터디룸 위치 이미지" class="fit-image">
 
-    <!-- html2canvas CDN for image export -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!--
+     * 실시간 길찾기 버튼을 추가합니다.
+     * 'primary' 클래스를 적용하여 스타일을 입히고, 'mainAction' ID로 스크립트에서 참조할 수 있도록 합니다.
+     -->
+    <button id="mainAction" class="primary">실시간 빠른 길찾기</button>
+    <div id="message-box"></div>
 
     <script>
-        // 초기값
-        const defaults = {
-            branch: '이룸 스터디룸 여의도점',
-            address: '영등포구 여의대방로65길 10, 유니온타워',
-            note: '2호점 - 4층 406호',
-            date: '9월 7일',
-            people: '6명',
-            time: '오전 9:30 ~ 12:30 (3시간)'
-        };
+        document.addEventListener('DOMContentLoaded', () => {
+            const button = document.getElementById('mainAction');
+            const messageBox = document.getElementById('message-box');
 
-        const el = id => document.getElementById(id);
-        const shareUrl = 'https://deeper1209.github.io/japanese/studyroom.html';
-        const mapUrl = 'https://deeper1209.github.io/studyroom/map.html';
-
-        // 사용자 정의 모달 함수
-        function showModal(message, title = '알림', onConfirm, onCancel, showConfirm = true, showCancel = false) {
-            el('myModal').style.display = 'flex';
-            el('modal-title').textContent = title;
-            el('modal-message').innerHTML = message;
-            el('modal-confirm').style.display = showConfirm ? 'inline-block' : 'none';
-            el('modal-cancel').style.display = showCancel ? 'inline-block' : 'none';
-            
-            const handleConfirm = () => {
-                el('myModal').style.display = 'none';
-                if (onConfirm) onConfirm();
-                el('modal-confirm').removeEventListener('click', handleConfirm);
-                el('modal-cancel').removeEventListener('click', handleCancel);
+            // 고정된 도착지 정보
+            const destination = {
+                name: '유니온타워',
+                latitude: 37.525501,
+                longitude: 126.929841
             };
 
-            const handleCancel = () => {
-                el('myModal').style.display = 'none';
-                if (onCancel) onCancel();
-                el('modal-confirm').removeEventListener('click', handleConfirm);
-                el('modal-cancel').removeEventListener('click', handleCancel);
-            };
+            button.addEventListener('click', () => {
+                // 버튼 비활성화 및 로딩 상태 표시
+                button.disabled = true;
+                button.textContent = '위치 찾는 중...';
+                messageBox.textContent = '잠시만 기다려 주세요...';
 
-            el('modal-confirm').addEventListener('click', handleConfirm);
-            if (onCancel) {
-                el('modal-cancel').addEventListener('click', handleCancel);
-            }
-        }
+                // Geolocation API를 사용하여 현재 위치 가져오기
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            const startLat = position.coords.latitude;
+                            const startLng = position.coords.longitude;
+                            
+                            // 네이버 지도 URL 동적 생성
+                            const naverMapsUrl = `https://m.map.naver.com/route/walk.nhn?menu=route&sText=&sLat=${startLat}&sLng=${startLng}&eText=${destination.name}&eLat=${destination.latitude}&eLng=${destination.longitude}`;
+                            
+                            // 새 탭에서 길찾기 페이지 열기
+                            window.open(naverMapsUrl, '_blank');
 
-        // 초기값 설정
-        function resetDefaults() {
-            el('branch').textContent = defaults.branch;
-            el('address').textContent = defaults.address;
-            el('note').textContent = defaults.note;
-            el('date').textContent = defaults.date;
-            el('people').textContent = defaults.people;
-            el('time').textContent = defaults.time;
-        }
-
-        // 초기값 설정 함수 호출
-        resetDefaults();
-
-        // 캔버스를 Blob으로 변환하는 헬퍼 함수
-        function canvasToBlob(canvas) {
-          return new Promise(resolve => {
-            canvas.toBlob(resolve, 'image/png');
-          });
-        }
-
-        // 메인 액션 버튼 (이미지 공유)
-        el('mainAction').addEventListener('click', async () => {
-            const node = el('card');
-            
-            try {
-                const canvas = await html2canvas(node, { 
-                    scale: window.devicePixelRatio || 2, 
-                    backgroundColor: '#0f1724',
-                    useCORS: true
-                });
-                const blob = await canvasToBlob(canvas);
-                const file = new File([blob], 'reservation_card.png', { type: 'image/png' });
-
-                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-                    // 파일만 공유
-                    await navigator.share({
-                        files: [file]
-                    });
-                    showModal('이미지 공유가 성공했습니다.');
+                            // 상태 복원
+                            button.disabled = false;
+                            button.textContent = '실시간 빠른 길찾기';
+                            messageBox.textContent = '';
+                        },
+                        (error) => {
+                            // 에러 처리
+                            button.disabled = false;
+                            button.textContent = '실시간 빠른 길찾기';
+                            let errorMessage = '위치 정보를 가져오는 데 실패했습니다.';
+                            if (error.code === 1) {
+                                errorMessage = '위치 권한이 거부되었습니다. 브라우저 설정을 확인해주세요.';
+                            } else if (error.code === 2) {
+                                errorMessage = '위치 정보를 사용할 수 없습니다.';
+                            }
+                            messageBox.textContent = errorMessage;
+                        }
+                    );
                 } else {
-                    showModal('이미지 공유 기능이 지원되지 않습니다.', '알림');
+                    // Geolocation API를 지원하지 않는 경우
+                    messageBox.textContent = '이 브라우저는 위치 정보 API를 지원하지 않습니다.';
                 }
-            } catch(err) {
-                if (err.name === 'AbortError') {
-                    console.log('공유 취소됨');
-                } else {
-                    showModal('작업에 실패했습니다: ' + (err && err.message ? err.message : err));
-                }
-            }
-        });
-        
-        // 지도 공유 버튼
-        el('mapShareBtn').addEventListener('click', async () => {
-            try {
-                if (navigator.share) {
-                    await navigator.share({
-                        title: '스터디룸 예약',
-                        text: '스터디룸 예약 했습니다.\n위치 확인하기: https://deeper1209.github.io/studyroom/map.html'
-                    });
-                    showModal('지도 링크가 성공적으로 공유되었습니다.');
-                } else {
-                    showModal('공유 기능이 지원되지 않습니다. 링크를 복사해 주세요.', '알림', () => {
-                        navigator.clipboard.writeText(mapUrl)
-                            .then(() => showModal('링크가 클립보드에 복사되었습니다.', '복사 완료'))
-                            .catch(() => showModal('링크를 직접 복사해 주세요:<br><br><strong>' + mapUrl + '</strong>', '복사 실패', null, null, false));
-                    });
-                }
-            } catch (err) {
-                if (err.name === 'AbortError') {
-                    console.log('공유 취소됨');
-                } else {
-                    showModal('작업에 실패했습니다: ' + (err && err.message ? err.message : err));
-                }
-            }
-        });
-
-        // 초기화
-        el('resetBtn').addEventListener('click', () => {
-            showModal('초기값으로 되돌리시겠어요? 편집 내용은 사라집니다.', '확인', resetDefaults, () => {}, true, true);
-        });
-
-        // 편집 시 (간단 debounce)
-        let timer = null;
-        const editableEls = document.querySelectorAll('[contenteditable="true"]');
-        editableEls.forEach(node => {
-            node.addEventListener('input', () => {
-                clearTimeout(timer);
-                timer = setTimeout(()=> {
-                    // 현재는 별도 표시 없음
-                }, 600);
             });
         });
     </script>
