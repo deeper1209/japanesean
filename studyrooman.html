@@ -105,9 +105,11 @@
                             const startLat = position.coords.latitude;
                             const startLng = position.coords.longitude;
                             
-                            // 네이버 지도 URL 동적 생성
-                            const naverMapsUrl = `https://m.map.naver.com/route/walk.nhn?menu=route&sText=&sLat=${startLat}&sLng=${startLng}&eText=${destination.name}&eLat=${destination.latitude}&eLng=${destination.longitude}`;
-                            
+                            // 네이버 지도 URL을 새로운 형식으로 동적 생성
+                            // 기존의 ".nhn" 확장자가 포함된 형식은 더 이상 유효하지 않습니다.
+                            // 'sText', 'eText'에 encodeURIComponent를 사용하여 한글이 깨지지 않도록 합니다.
+                            const naverMapsUrl = `https://m.map.naver.com/route/walk?menu=route&sText=${encodeURIComponent('현재 위치')}&sLat=${startLat}&sLng=${startLng}&eText=${encodeURIComponent(destination.name)}&eLat=${destination.latitude}&eLng=${destination.longitude}`;
+
                             // 새 탭에서 길찾기 페이지 열기
                             window.open(naverMapsUrl, '_blank');
 
