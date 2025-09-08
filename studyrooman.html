@@ -145,8 +145,8 @@
                         const startLon = position.coords.longitude;
                         const destination = encodeURIComponent("서울 영등포구 여의대방로65길 10, 유니온타워");
                         
-                        // 출발지(saddr)에 위도, 경도 정보를 추가하여 URL을 생성합니다.
-                        const url = `https://www.google.com/maps/dir/${startLat},${startLon}/${destination}/?api=1&travelmode=${transportMode}`;
+                        // 새로운 URL 형식: origin과 destination을 쿼리 파라미터로 명확하게 전달합니다.
+                        const url = `https://www.google.com/maps/dir/?api=1&origin=${startLat},${startLon}&destination=${destination}&travelmode=${transportMode}`;
                         
                         window.open(url, '_blank');
                     },
