@@ -14,6 +14,7 @@
             overflow: hidden; /* 스크롤바를 숨깁니다. */
             width: 100%;
             height: 100%;
+            position: relative;
         }
 
         /*
@@ -50,25 +51,27 @@
             left: 50%;
             transform: translateX(-50%); /* X축으로 -50% 이동하여 수평 중앙에 위치시킵니다. */
             display: flex; /* 버튼을 가로로 정렬합니다. */
-            gap: 16px; /* 버튼 사이에 16px의 간격을 둡니다. */
+            gap: 12px; /* 버튼 사이에 12px의 간격을 둡니다. */
             z-index: 100; /* 다른 요소 위에 표시되도록 z-index를 높게 설정합니다. */
+            flex-wrap: nowrap; /* 버튼이 줄바꿈되지 않고 항상 한 줄에 나오도록 합니다. */
         }
 
         /*
-         * 버튼 스타일 (네온 효과에서 그림자 제거)
+         * 버튼 스타일
          */
         .transport-button {
-            padding: 12px 24px;
+            padding: 10px 18px; /* 패딩을 줄여서 버튼을 작게 만듭니다. */
             border-radius: 30px; /* 부드러운 알약 모양 */
             border: 2px solid #00c0ff; /* 테두리 색상 */
             background: linear-gradient(45deg, #00c0ff, #ff00c0); /* 그라데이션 배경 */
             background-size: 200% 200%;
             color: white;
-            font-size: 16px;
+            font-size: 14px; /* 글자 크기를 14px로 줄입니다. */
             font-weight: bold;
             cursor: pointer;
             transition: all 0.4s ease; /* 모든 속성에 부드러운 전환 효과를 줍니다. */
             animation: gradient-animation 5s ease infinite;
+            white-space: nowrap; /* 텍스트가 줄바꿈되지 않게 합니다. */
         }
         
         /*
@@ -86,6 +89,21 @@
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
+        }
+
+        /* 상태 메시지 스타일 */
+        #status-message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            font-size: 14px;
+            color: #333;
+            z-index: 101;
+            display: none;
         }
     </style>
 </head>
@@ -109,15 +127,44 @@
         <button class="transport-button" onclick="openMaps('walking')">도보</button>
     </div>
 
+    <div id="status-message"></div>
+
     <script>
         function openMaps(transportMode) {
-            // 도착지 주소를 URL 인코딩합니다.
-            const destination = encodeURIComponent("서울 영등포구 여의대방로65길 10, 유니온타워");
-            // 길 찾기 URL을 생성합니다. 출발지는 'current location'으로 설정하여,
-            // 구글 지도가 사용자의 현재 위치를 자동으로 감지하도록 합니다.
-            const url = `https://www.google.com/maps/dir/?api=1&destination=${destination}&travelmode=${transportMode}`;
-            // 새로운 탭에서 구글 지도를 엽니다.
-            window.open(url, '_blank');
+            const statusMessage = document.getElementById('status-message');
+            statusMessage.style.display = 'block';
+            statusMessage.textContent = '현재 위치를 찾는 중입니다...';
+
+            // Geolocation API를 사용하여 현재 위치를 가져옵니다.
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        // 위치를 성공적으로 가져온 경우
+                        statusMessage.style.display = 'none';
+                        const startLat = position.coords.latitude;
+                        const startLon = position.coords.longitude;
+                        const destination = encodeURIComponent("서울 영등포구 여의대방로65길 10, 유니온타워");
+                        
+                        // 출발지(saddr)에 위도, 경도 정보를 추가하여 URL을 생성합니다.
+                        const url = `https://www.google.com/maps/dir/${startLat},${startLon}/${destination}/?api=1&travelmode=${transportMode}`;
+                        
+                        window.open(url, '_blank');
+                    },
+                    (error) => {
+                        // 위치 가져오기 실패 또는 권한이 거부된 경우
+                        console.error('위치 정보를 가져오는데 실패했습니다.', error);
+                        statusMessage.textContent = '위치 정보 가져오기 실패: 권한을 허용해주세요.';
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 5000,
+                        maximumAge: 0
+                    }
+                );
+            } else {
+                // 브라우저가 Geolocation을 지원하지 않는 경우
+                statusMessage.textContent = '죄송합니다. 이 브라우저는 위치 정보를 지원하지 않습니다.';
+            }
         }
     </script>
 
